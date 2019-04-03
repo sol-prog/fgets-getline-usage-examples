@@ -16,7 +16,7 @@ int main(void) {
 
     while(fgets(chunk, sizeof(chunk), fp) != NULL) {
         fputs(chunk, stdout);
-        fputs("|*\n", stdout);
+        fputs("|*\n", stdout);  // marker string used to show where the content of the chunk array has ended
     }
 
     fclose(fp);
