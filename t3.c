@@ -79,6 +79,5 @@ int main(void) {
     printf("\n\nMax line size: %zd\n", len);
 
     fclose(fp);
-    free(line);     // getline will use realloc to resize the input buffer as necessary
-                    // the user needs to free the memory when not needed!
+    free(line);
 }
