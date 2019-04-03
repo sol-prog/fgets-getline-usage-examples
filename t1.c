@@ -22,11 +22,16 @@ int main(void) {
         perror("Unable to allocate memory for the line buffer.");
         exit(1);
     }
+
+    // "Empty" the string
     line[0] = '\0';
 
     while(fgets(chunk, sizeof(chunk), fp) != NULL) {
         // Resize the line buffer if necessary
-        if(len - strlen(line) < sizeof(chunk)) {
+        size_t len_used = strlen(line);
+        size_t chunk_used = strlen(chunk);
+
+        if(len - len_used < chunk_used) {
             len *= 2;
             if((line = realloc(line, len)) == NULL) {
                 perror("Unable to reallocate memory for the line buffer.");
@@ -35,14 +40,16 @@ int main(void) {
             }
         }
 
-        // Append the chunk to the end of the line buffer
-        strcat(line, chunk);
+        // Copy the chunk to the end of the line buffer
+        strncpy(line + len_used, chunk, len - len_used);
+        len_used += chunk_used;
 
         // Check if line contains '\n', if yes process the line of text
-        if(line[strlen(line) - 1] == '\n') {
-            //fputs(line, stdout);
-            //fputs("|*\n", stdout);
-            printf("line length: %zd\n", strlen(line));
+        if(line[len_used - 1] == '\n') {
+            // fputs(line, stdout);
+            // fputs("|*\n", stdout);
+            printf("line length: %zd\n", len_used);
+            // "Empty" the line buffer
             line[0] = '\0';
         }
     }

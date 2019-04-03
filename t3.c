@@ -8,20 +8,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <errno.h>
 
 int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp) {
-    // Check if either line or len are NULL pointers
-    if(line == NULL || len == NULL) {
-        fputs("Error! Bad arguments.\n", stderr);
+    // Check if either line, len or fp are NULL pointers
+    if(line == NULL || len == NULL || fp == NULL) {
+        errno = EINVAL;
         return -1;
     }
     
-    // Check if fp is a valid file pointer
-    if(fp == NULL) {
-        fputs("Error! Bad file pointer.\n", stderr);
-        return -1;
-    }
-
     // Use a chunk array of 128 bytes as parameter for fgets
     char chunk[128];
 
@@ -29,29 +24,35 @@ int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp
     if(*line == NULL) {
         *len = sizeof(chunk);
         if((*line = malloc(*len)) == NULL) {
-            perror("Unable to allocate memory for the line buffer.");
+            errno = ENOMEM;
             return -1;
         }
     }
+
+    // "Empty" the string
     (*line)[0] = '\0';
 
     while(fgets(chunk, sizeof(chunk), fp) != NULL) {
         // Resize the line buffer if necessary
-        if(*len - strlen(*line) < sizeof(chunk)) {
+        size_t len_used = strlen(*line);
+        size_t chunk_used = strlen(chunk);
+
+        if(*len - len_used < chunk_used) {
             *len *= 2;
             if((*line = realloc(*line, *len)) == NULL) {
-                perror("Unable to reallocate memory for the line buffer.");
+                errno = ENOMEM;
                 free(line);
                 return -1;
             }
         }
 
-        // Append the chunk to the end of the *line buffer
-        strcat(*line, chunk);
+        // Copy the chunk to the end of the line buffer
+        strncpy(*line + len_used, chunk, *len - len_used);
+        len_used += chunk_used;
 
         // Check if *line contains '\n', if yes, return the *line length
-        if((*line)[strlen(*line) - 1] == '\n') {
-            return strlen(*line);
+        if((*line)[len_used - 1] == '\n') {
+            return len_used;
         }
     }
 
