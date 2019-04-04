@@ -20,8 +20,8 @@ int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp
     // Use a chunk array of 128 bytes as parameter for fgets
     char chunk[128];
 
-    // Allocate a block of memory for *line if it is NULL
-    if(*line == NULL) {
+    // Allocate a block of memory for *line if it is NULL or smaller than the chunk array
+    if(*line == NULL || *len < sizeof(chunk)) {
         *len = sizeof(chunk);
         if((*line = malloc(*len)) == NULL) {
             errno = ENOMEM;
