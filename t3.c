@@ -16,7 +16,7 @@ Differences:
     - the function returns int64_t instead of ssize_t
     - does not accept NUL characters in the input file
 Warnings:
-    - the function sets EINVAL, ENOMEN, EOVERFLOW in case of errors. The above are not defined by ISO C17,
+    - the function sets EINVAL, ENOMEM, EOVERFLOW in case of errors. The above are not defined by ISO C17,
     but are supported by other C compilers like MSVC
 */
 int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp) {
