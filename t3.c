@@ -41,7 +41,6 @@ int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp
             *len *= 2;
             if((*line = realloc(*line, *len)) == NULL) {
                 errno = ENOMEM;
-                free(*line);
                 return -1;
             }
         }
