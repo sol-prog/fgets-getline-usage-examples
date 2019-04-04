@@ -10,6 +10,15 @@
 #include <stdint.h>
 #include <errno.h>
 
+/*
+POSIX getline replacement for non-POSIX systems (like Windows)
+Differences:
+    - the function returns int64_t instead of ssize_t
+    - does not accept NUL characters in the input file
+Warnings:
+    - the function sets EINVAL, ENOMEN, EOVERFLOW in case of errors. The above are not defined by ISO C17,
+    but are supported by other C compilers like MSVC
+*/
 int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp) {
     // Check if either line, len or fp are NULL pointers
     if(line == NULL || len == NULL || fp == NULL) {
@@ -38,7 +47,14 @@ int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp
         size_t chunk_used = strlen(chunk);
 
         if(*len - len_used < chunk_used) {
-            *len *= 2;
+            // Check for overflow
+            if(*len > INT64_MAX / 2) {
+                errno = EOVERFLOW;
+                return -1;
+            } else {
+                *len *= 2;
+            }
+            
             if((*line = realloc(*line, *len)) == NULL) {
                 errno = ENOMEM;
                 return -1;
