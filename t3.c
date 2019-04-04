@@ -47,8 +47,9 @@ int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp
         }
 
         // Copy the chunk to the end of the line buffer
-        strncpy(*line + len_used, chunk, *len - len_used);
+        memcpy(*line + len_used, chunk, chunk_used);
         len_used += chunk_used;
+        (*line)[len_used] = '\0';
 
         // Check if *line contains '\n', if yes, return the *line length
         if((*line)[len_used - 1] == '\n') {
