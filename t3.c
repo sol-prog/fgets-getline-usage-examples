@@ -48,7 +48,7 @@ int64_t my_getline(char **restrict line, size_t *restrict len, FILE *restrict fp
 
         if(*len - len_used < chunk_used) {
             // Check for overflow
-            if(*len > INT64_MAX / 2) {
+            if(*len > SIZE_MAX / 2) {
                 errno = EOVERFLOW;
                 return -1;
             } else {
